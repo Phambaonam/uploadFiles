@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.gallery {
+    margin-top: 50px;
+}
+.gallery img {
+    width: 100px;
+    height: 100px;
+}
+.remove_img_preview {
+    position: relative;
+    top: -107px;
+    right: 20px;
+    background: black;
+    color: white;
+    border-radius: 50px;
+    font-size: 0.9em;
+    padding: 0 0.3em 0;
+    text-align: center;
+    cursor: pointer;
+}
+.remove_img_preview:before {
+    content:"×";
+}
+</style>
+</head>
+<body>
+<form action="/profile" method="post" enctype="multipart/form-data">
+    <div id="file_count"></div>
+    <input type="file" name="photos" multiple id="gallery-photo-add" >
+    <input type="submit" value="Upload" name="submit">
+    <div class="gallery"></div>   
+</form>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script>
+var fileCount = 0;
+
+var showFileCount = function() {
+    $('#file_count').text('Files selected: ' + fileCount);
+};
+
+$(function() {
+    var count = 1;
+    // Multiple images preview in browser
+    var imagesPreview = function(input, placeToInsertImagePreview) {
+        if (input.files) {
+            var files = $('#gallery-photo-add')[0].files;
+            var filesAmount = input.files.length;
+            for (i = 0; i < filesAmount; i++) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    $($.parseHTML('<img>'))
+                    .addClass('img images' + count)
+                    .attr('src', event.target.result)
+                    .appendTo(placeToInsertImagePreview);
+
+                    $($.parseHTML('<span>')).attr({
+                        'class': 'remove_img_preview remove_img_preview' + count,
+                        'remove': count
+                    })
+                    .appendTo(placeToInsertImagePreview);
+                    count ++
+                }
+                reader.readAsDataURL(input.files[i]);
+            }
+            fileCount += files.length;
+            showFileCount()
+        }
+
+    };
+    $('#gallery-photo-add').on('change', function() {
+        imagesPreview(this, 'div.gallery');
+    });
+});
+
+$(document).ready(function() {
+    $(document).on('click', '.remove_img_preview', function(){
+        var count = $(this).attr('remove')
+        var img = '.images' + count
+        var rm = ".remove_img_preview" + count
+        $(img).remove()
+        $(rm).remove()
+        fileCount -= 1;
+        showFileCount();
+    });
+});
+// https://stackoverflow.com/questions/42116909/show-remaining-file-count-when-removing-files-on-multiple-file-upload    
+</script>
+</body>
+</html>
